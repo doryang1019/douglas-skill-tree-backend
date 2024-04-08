@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,11 +38,13 @@ public class Program {
 	
 	//relationship between program and users
 	@OneToMany(mappedBy = "program", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JsonIgnore
 	private Set<User> users = new HashSet<>();
 	
 	
 	//many to many between program and course via program_has_course
 	@OneToMany(mappedBy="program1")
+	@JsonIgnore
 	public List<ProgramHasCourse> relations1 = new ArrayList<>();
 	
 	

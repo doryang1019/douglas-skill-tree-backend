@@ -58,6 +58,13 @@ public class User {
 		this.password = password;
 		this.isAdmin = isAdmin;
 	}
+	public User(String username, String password, boolean isAdmin, Program program) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.isAdmin = isAdmin;
+		this.program = program;
+	}
 	
 	
 	

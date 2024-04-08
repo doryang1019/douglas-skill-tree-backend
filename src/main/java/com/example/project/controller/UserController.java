@@ -8,11 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.project.model.Course;
+import com.example.project.model.*;
 import com.example.project.model.CourseRepository;
 import com.example.project.model.User;
 import com.example.project.model.UserRepository;
 import com.example.project.request.UserLoginRequest;
+import com.example.project.request.*;
 
 import java.util.Optional;
 import com.example.project.response.MessageResponse;
@@ -27,6 +28,9 @@ public class UserController {
 	
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	ProgramRepository programRepository;
 	
 	
 	@PutMapping("")
@@ -48,6 +52,26 @@ public class UserController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		} 
 			
+		
+	}
+	
+	@PostMapping("/add") 
+	public ResponseEntity<User> addUser(@RequestBody UserAddRequest req ) {
+		try {
+			Optional<Program> program = programRepository.findById(req.getProgramId());
+			if(program.isPresent() && !req.getUserName().isEmpty() && !req.getPassword().isEmpty()) {
+				User user = new User(req.getUserName(), req.getPassword(), req.isAdmin(), program.get());
+				User result = userRepository.save(user);
+				return new ResponseEntity<>(result, HttpStatus.OK);
+			} else {
+				MessageResponse msg = new MessageResponse("One of the options is empty");
+				return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+			}
+			
+			
+		} catch(Exception e) {
+			return null;
+		}
 		
 	}
 	
