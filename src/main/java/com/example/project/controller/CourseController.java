@@ -2,6 +2,7 @@ package com.example.project.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.project.model.Course;
 import com.example.project.model.CourseRepository;
+import com.example.project.model.ProgramHasCourse;
+import com.example.project.model.ProgramHasCourseRepository;
+import com.example.project.model.ProgramRepository;
 import com.example.project.model.UserTakeCourse;
 import com.example.project.response.CourseResponse;
 import com.example.project.service.CourseService;
@@ -23,6 +27,12 @@ public class CourseController {
 
 	@Autowired
 	CourseRepository courseRepository;
+	
+	@Autowired
+	ProgramRepository programRepository;
+	@Autowired
+	ProgramHasCourseRepository programHasCourseRepository;
+	
 
 	@Autowired
 	CourseService courseService;
@@ -86,20 +96,64 @@ public class CourseController {
 			result.add(cr);
 		}
 	}
+    public List<Course> getCourseByProgram(@PathVariable("id") long id) {
+		
+		try {
+			List<Course> courses= new ArrayList<>();
+			
+			List<ProgramHasCourse> buffer = programHasCourseRepository.findByProgramId(id);
+			if(buffer.size() > 0 ) {
+				
+				buffer.forEach(x -> {
+					Optional<Course> course = courseRepository.findById(x.getCourse1().getId());
+					if(course.isPresent()) {
+						courses.add(course.get());
+					}
+				});
+				return courses;
+				
+			}else {
+				return null;
+			}
+			
+		} catch(Exception e) {
+			return null;
+		}
+		
+	}
 
 	@GetMapping("")
 	public ResponseEntity<List<CourseResponse>> getAllCourses(
-			@RequestParam(name = "key", required = false) String key) {
+			@RequestParam(name = "key", required = false) String key ,
+			@RequestParam(name="program", required = false) Long programId) {
 		try {
 			System.out.print(key);
+//			System.out.print("program: " + programId);
 			List<Course> courses = new ArrayList<>();
 			List<Course> orgCourses = new ArrayList<>();
 			List<CourseResponse> result = new ArrayList<>();
 			List<CourseResponse> allCourses = new ArrayList<>();
-			if (key == null) {
-				courseRepository.findAll().forEach(courses::add);
+			if (key == null || key.length() ==0 || key.isEmpty()) {
+				System.out.print("IS EMPTY: " + key );
+				if(programId == null) {
+					courseRepository.findAll().forEach(courses::add);
+				} else {
+					courses = getCourseByProgram(programId);
+					System.out.print("Course size " + courses.get(0).getCode());
+					courses.forEach((x) -> System.out.println(x.getTitle()));
+				}
+				
 			} else {
-				courseRepository.findByCodeOrTitle(key.toLowerCase()).stream().forEach(courses::add);
+				if(programId == null) {
+					
+					courseRepository.findByCodeOrTitle(key.toLowerCase()).stream().forEach(courses::add);
+				} else {
+					System.out.print("HAS PROGRAM");
+					courses = getCourseByProgram(programId).stream().filter(x -> x.getCode().toLowerCase().contains(key.toLowerCase()) ||
+							x.getTitle().toLowerCase().contains(key.toLowerCase())).toList();
+//					courseRepository.findByCodeOrTitle(key.toLowerCase()).stream().filter(x -> x.).forEach(courses::add);
+				}
+				
 			}
 			courseRepository.findAll().forEach(orgCourses::add);
 			ArrayList<Course> pres = new ArrayList<>();

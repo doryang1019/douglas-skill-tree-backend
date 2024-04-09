@@ -3,13 +3,13 @@ package com.example.project.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
+import com.example.project.model.Course;
+import com.example.project.model.CourseRepository;
 import com.example.project.model.Program;
+import com.example.project.model.ProgramHasCourse;
+import com.example.project.model.ProgramHasCourseRepository;
 import com.example.project.model.ProgramRepository;
 import com.example.project.model.User;
 import com.example.project.request.UserAddRequest;
@@ -23,6 +23,11 @@ public class ProgramController {
 	@Autowired
 	ProgramRepository programRepository;
 	
+	@Autowired
+	CourseRepository courseRepository;
+	
+	@Autowired
+	ProgramHasCourseRepository programHasCourseRepository;
 	@GetMapping("") 
 	public ResponseEntity<List<Program>> getAllProgram( ) {
 		try {
@@ -35,5 +40,7 @@ public class ProgramController {
 		}
 		
 	}
+
+	
 
 }
