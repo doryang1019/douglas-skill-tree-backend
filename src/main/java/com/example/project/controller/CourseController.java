@@ -63,6 +63,17 @@ public class CourseController {
 
 	}
 	
+	@GetMapping("all")
+	public ResponseEntity<List<Course>> getAllUnformat() {
+		try {
+			List<Course> courses = courseRepository.findAll();
+			return new ResponseEntity<>(courses, HttpStatus.OK);
+			
+		}catch(Exception ex) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	public void formatCourse(List<Course> courses, List<CourseResponse> result) {
 		for(Course c: courses) {
 //			System.out.println("go th for loop");

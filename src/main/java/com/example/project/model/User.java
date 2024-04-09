@@ -38,13 +38,13 @@ public class User {
 	
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name = "program_id", nullable = true)
-	@JsonIgnore
 	private Program program;
 	
 	
 	// many to many between user and course via UserTakeCourse
 	
 	@OneToMany(mappedBy="user")
+	@JsonIgnore
 	public List<UserTakeCourse> relations = new ArrayList<>();
 	
 	
