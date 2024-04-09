@@ -16,9 +16,9 @@ public class UserTakeCourseService {
 	public CourseStatus setStatus(long courseId, long userId) {
 		
 	 UserTakeCourse result = userTakeCourseRepository.findByUserIdAndCourseId(userId, courseId);
-	 System.out.print(result.getCourse().getId());
-	 System.out.print(result.getUser().getId());
-	 
+//	 System.out.print(result.getCourse().getId());
+//	 System.out.print(result.getUser().getId());
+//	 
 	 if(result == null) {
 		 return new CourseStatus(false, false);
 	 } else {

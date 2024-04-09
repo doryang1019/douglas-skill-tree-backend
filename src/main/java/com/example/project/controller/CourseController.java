@@ -18,7 +18,9 @@ import com.example.project.model.ProgramHasCourseRepository;
 import com.example.project.model.ProgramRepository;
 import com.example.project.model.UserTakeCourse;
 import com.example.project.response.CourseResponse;
+import com.example.project.response.CourseStatus;
 import com.example.project.service.CourseService;
+import com.example.project.service.UserTakeCourseService;
 
 @CrossOrigin(origins = "http://localhost:8081")
 @RestController
@@ -32,6 +34,9 @@ public class CourseController {
 	ProgramRepository programRepository;
 	@Autowired
 	ProgramHasCourseRepository programHasCourseRepository;
+	
+	@Autowired
+	UserTakeCourseService userTakeCourseService;
 	
 
 	@Autowired
@@ -84,14 +89,18 @@ public class CourseController {
 		}
 	}
 	
-	public void formatCourse(List<Course> courses, List<CourseResponse> result) {
+	public void formatCourse(List<Course> courses, List<CourseResponse> result, Long userId) {
+//		System.out.println("course size" + courses.get(0).getCode());
+//		System.out.print("result" + result.size());
 		for(Course c: courses) {
 //			System.out.println("go th for loop");
 //			System.out.println(c.getId());
-			CourseResponse cr = new CourseResponse(c.getId(), c.getCode(), c.getTitle());
+			CourseStatus status = userTakeCourseService.setStatus(c.getId(), userId);
+			CourseResponse cr = new CourseResponse(c.getId(), c.getCode(), c.getTitle(), status);
 			for(Long i : c.getRequisitesOf()) {
 				Course tmp = courseRepository.findById(i).get();
-				cr.addRequisity(new CourseResponse(tmp.getId(), tmp.getCode(), tmp.getTitle()));
+				CourseStatus status2 = userTakeCourseService.setStatus(tmp.getId(), userId);
+				cr.addRequisity(new CourseResponse(tmp.getId(), tmp.getCode(), tmp.getTitle(), status2));
 			}
 			result.add(cr);
 		}
@@ -125,7 +134,8 @@ public class CourseController {
 	@GetMapping("")
 	public ResponseEntity<List<CourseResponse>> getAllCourses(
 			@RequestParam(name = "key", required = false) String key ,
-			@RequestParam(name="program", required = false) Long programId) {
+			@RequestParam(name="program", required = false) Long programId,
+			@RequestParam(name="userId", required=true) Long userId) {
 		try {
 			System.out.print(key);
 //			System.out.print("program: " + programId);
@@ -134,10 +144,11 @@ public class CourseController {
 			List<CourseResponse> result = new ArrayList<>();
 			List<CourseResponse> allCourses = new ArrayList<>();
 			if (key == null || key.length() ==0 || key.isEmpty()) {
-				System.out.print("IS EMPTY: " + key );
 				if(programId == null) {
+					System.out.print("!!!!NONE!!!!!");
 					courseRepository.findAll().forEach(courses::add);
 				} else {
+					System.out.print("!!!!NONE2!!!!!");
 					courses = getCourseByProgram(programId);
 					System.out.print("Course size " + courses.get(0).getCode());
 					courses.forEach((x) -> System.out.println(x.getTitle()));
@@ -145,7 +156,7 @@ public class CourseController {
 				
 			} else {
 				if(programId == null) {
-					
+					System.out.print("!!!!NONE3!!!!!");
 					courseRepository.findByCodeOrTitle(key.toLowerCase()).stream().forEach(courses::add);
 				} else {
 					System.out.print("HAS PROGRAM");
@@ -156,10 +167,9 @@ public class CourseController {
 				
 			}
 			courseRepository.findAll().forEach(orgCourses::add);
-			ArrayList<Course> pres = new ArrayList<>();
 			ArrayList<Long> ids = new ArrayList<>();
-			formatCourse(orgCourses, allCourses);
-			formatCourse(courses, result);
+			formatCourse(orgCourses, allCourses, userId);
+			formatCourse(courses, result, userId);
 			courseService.findInherit(allCourses, result, ids);
 			return new ResponseEntity<>(
 					result.stream().filter(x -> !ids.contains(x.getId())).collect(Collectors.toList()), HttpStatus.OK);

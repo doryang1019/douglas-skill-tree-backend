@@ -18,7 +18,6 @@ public class CourseService {
 
 	@Autowired
 	CourseRepository courseRepository;
-
 	@Autowired
 	UserTakeCourseService userTakeCourseService;
 
@@ -55,6 +54,16 @@ public class CourseService {
 		}
 		return null;
 	}
+	
+//	private List<Long> getParentCourse(List<Long> result, Long id) {
+//		try {
+//			
+//			
+//			
+//		}catch(Exception ex) {
+//			return null;
+//		}
+//	}
 
 	private CourseResponse getPreRequisites(CourseResponse courseResponse, List<Long> ids) {
 		Course c = courseRepository.findById(courseResponse.getId()).get();

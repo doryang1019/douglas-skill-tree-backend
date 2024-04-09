@@ -49,6 +49,14 @@ public class CourseResponse {
 		this.title = title;
 //		this.requisitesOf = requisitesOf;
 	}
+	public CourseResponse(Long id, String code, String title, CourseStatus status) {
+		super();
+		this.id = id;
+		this.code = code;
+		this.title = title;
+		this.status = status;
+//		this.requisitesOf = requisitesOf;
+	}
 
 	public List<CourseResponse> getRequisitesOf() {
 		return requisitesOf;
