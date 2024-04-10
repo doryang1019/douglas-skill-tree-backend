@@ -3,6 +3,7 @@ package com.example.project.response;
 public class CourseStatus {
 	
 	private boolean isTaken;
+	private boolean isDone;
 	
 	public boolean isTaken() {
 		return isTaken;
@@ -20,7 +21,7 @@ public class CourseStatus {
 		this.isDone = isDone;
 	}
 
-	private boolean isDone;
+	
 	
 	
 	public CourseStatus(boolean isTaken, boolean isDone) {
