@@ -90,11 +90,8 @@ public class CourseController {
 	}
 	
 	public void formatCourse(List<Course> courses, List<CourseResponse> result, Long userId) {
-//		System.out.println("course size" + courses.get(0).getCode());
-//		System.out.print("result" + result.size());
 		for(Course c: courses) {
-//			System.out.println("go th for loop");
-//			System.out.println(c.getId());
+
 			CourseStatus status = userTakeCourseService.setStatus(c.getId(), userId);
 			CourseResponse cr = new CourseResponse(c.getId(), c.getCode(), c.getTitle(), status);
 			for(Long i : c.getRequisitesOf()) {
@@ -137,18 +134,16 @@ public class CourseController {
 			@RequestParam(name="program", required = false) Long programId,
 			@RequestParam(name="userId", required=true) Long userId) {
 		try {
-			System.out.print(key);
-//			System.out.print("program: " + programId);
 			List<Course> courses = new ArrayList<>();
 			List<Course> orgCourses = new ArrayList<>();
 			List<CourseResponse> result = new ArrayList<>();
 			List<CourseResponse> allCourses = new ArrayList<>();
 			if (key == null || key.length() ==0 || key.isEmpty()) {
 				if(programId == null) {
-					System.out.print("!!!!NONE!!!!!");
+					System.out.print("!!!!PROGRAM IS NULL!!!!!");
 					courseRepository.findAll().forEach(courses::add);
 				} else {
-					System.out.print("!!!!NONE2!!!!!");
+					System.out.print("!!!!PROGRAM IS NOT NULL!!!!!");
 					courses = getCourseByProgram(programId);
 					System.out.print("Course size " + courses.get(0).getCode());
 					courses.forEach((x) -> System.out.println(x.getTitle()));
@@ -156,7 +151,7 @@ public class CourseController {
 				
 			} else {
 				if(programId == null) {
-					System.out.print("!!!!NONE3!!!!!");
+					System.out.print("!!!!PROGRAM ID IS NULL!!!!!");
 					courseRepository.findByCodeOrTitle(key.toLowerCase()).stream().forEach(courses::add);
 				} else {
 					System.out.print("HAS PROGRAM");
@@ -213,7 +208,10 @@ public class CourseController {
 				if(findOne.getRequisitesOf().size() !=0) {
 					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 				}else {
+					programHasCourseRepository.deleteByCouseId(id);
 					courseRepository.delete(findOne);
+					courseService.deleteRequisiteIdFromCourses(id);
+					
 					return new ResponseEntity<>(findOne, HttpStatus.OK);
 				}
 				

@@ -50,13 +50,10 @@ public class Course {
 	public List<UserTakeCourse> relations = new ArrayList<>();
 	
 	
-	// many to many relationship between course and program
-	@OneToMany(mappedBy="course1",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JsonIgnore
-	public List<ProgramHasCourse> relations1 = new ArrayList<>();
-	
 	
 	public Course() {}
+	
+	
 
 	public Course(String code, String title) {
 		super();
@@ -64,6 +61,8 @@ public class Course {
 		this.title = title;
 	}
 
+	
+	
 	public long getId() {
 		return id;
 	}
@@ -104,17 +103,6 @@ public class Course {
 		this.relations = relations;
 	}
 
-	public List<ProgramHasCourse> getRelations1() {
-		return relations1;
-	}
-
-	public void setRelations1(List<ProgramHasCourse> relations1) {
-		this.relations1 = relations1;
-	}
-	
-	
-	
-	
 	
 	
 }

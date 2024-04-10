@@ -10,7 +10,9 @@
 /Users/yishinyang/douglas-skill-tree-backend/src/main/java/com/example/project/model/UserTakeCourse.java
 /Users/yishinyang/douglas-skill-tree-backend/src/main/java/com/example/project/model/ProgramHasCourse.java
 /Users/yishinyang/douglas-skill-tree-backend/src/main/java/com/example/project/controller/UserController.java
+/Users/yishinyang/douglas-skill-tree-backend/src/main/java/com/example/project/model/CoursePrerequisitesRepository.java
 /Users/yishinyang/douglas-skill-tree-backend/src/main/java/com/example/project/controller/ProgramController.java
+/Users/yishinyang/douglas-skill-tree-backend/src/main/java/com/example/project/model/CoursePrerequisites.java
 /Users/yishinyang/douglas-skill-tree-backend/src/main/java/com/example/project/model/Program.java
 /Users/yishinyang/douglas-skill-tree-backend/src/main/java/com/example/project/service/CourseService.java
 /Users/yishinyang/douglas-skill-tree-backend/src/main/java/com/example/project/Csis3275071G1ProjectApplication.java

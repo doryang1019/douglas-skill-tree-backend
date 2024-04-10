@@ -3,7 +3,10 @@ package com.example.project.model;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+
+import jakarta.transaction.Transactional;
 
 
 
@@ -17,4 +20,14 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 	List<Course> findByCode(String code);
 	
 	List<Course> findByTitleContaining(String subTitle);
+	// course_prerequisites
+	
+	@Transactional
+    @Modifying
+    @Query("update Course c set c.requisitesOf = null where c.id = :courseId and :requisiteId member of c.requisitesOf")
+    void deleteRequisiteIdFromCourse(Long courseId, Long requisiteId);
+	
+	
+
+
 }

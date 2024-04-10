@@ -13,6 +13,8 @@ import com.example.project.model.CourseRepository;
 import com.example.project.response.CourseResponse;
 import com.example.project.response.CourseStatus;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class CourseService {
 
@@ -20,6 +22,16 @@ public class CourseService {
 	CourseRepository courseRepository;
 	@Autowired
 	UserTakeCourseService userTakeCourseService;
+	
+	@Transactional
+    public void deleteRequisiteIdFromCourses(Long requisiteId) {
+        List<Course> courses = courseRepository.findAll();
+        for (Course course : courses) {
+            if (course.getRequisitesOf().remove(requisiteId)) {
+                courseRepository.save(course);
+            }
+        }
+    }
 
 	public CourseResponse getOne(Long id, long userId) {
 
@@ -81,6 +93,8 @@ public class CourseService {
 		return courseResponse;
 
 	}
+	
+	
 
 	private void findPrerequisitesRecursive(List<CourseResponse> allCourse, List<CourseResponse> result, CourseResponse courseResponse,
 			List<Long> ids) {
