@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.project.model.Course;
 import com.example.project.model.CourseRepository;
+import com.example.project.model.Program;
 import com.example.project.model.ProgramHasCourse;
 import com.example.project.model.ProgramHasCourseRepository;
 import com.example.project.model.ProgramRepository;
@@ -20,6 +21,7 @@ import com.example.project.model.User;
 import com.example.project.model.UserRepository;
 import com.example.project.model.UserTakeCourse;
 import com.example.project.model.UserTakeCourseRepository;
+import com.example.project.request.AddCourseRequest;
 import com.example.project.response.CourseResponse;
 import com.example.project.response.CourseStatus;
 import com.example.project.service.CourseService;
@@ -280,15 +282,21 @@ public class CourseController {
 	
 
 	@PostMapping("")
-	public ResponseEntity<Course> addCourse(@RequestBody Course course) {
+	public ResponseEntity<Course> addCourse(@RequestBody AddCourseRequest addCourseReq) {
 		try {
 
-			List<Course> courses = courseRepository.findByTitle(course.getTitle());
+			List<Course> courses = courseRepository.findByTitle(addCourseReq.getCourse().getTitle());
 			if (courses.size() > 0) {
 				return new ResponseEntity<>(HttpStatus.CONFLICT);
 			} else {
-				if (course.getCode() != null && course.getTitle() != null) {
-					return new ResponseEntity<>(courseRepository.save(course), HttpStatus.CREATED);
+				if (addCourseReq.getCourse().getCode() != null && addCourseReq.getCourse().getTitle() != null) {
+					// save program
+					Course result = courseRepository.save(addCourseReq.getCourse());
+					if(result != null) {
+						Program program = programRepository.findById(addCourseReq.getProgramId()).get();
+						programHasCourseRepository.save(new ProgramHasCourse(program, result));
+					}
+					return new ResponseEntity<>(result, HttpStatus.CREATED);
 				} else {
 					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 				}
