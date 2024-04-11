@@ -68,14 +68,17 @@ public class Csis3275071G1ProjectApplication {
 	        // Find CSIS2260 and CSIS2270 from the list of courses
 	        Course csis2260 = courses.stream().filter(course -> course.getCode().equals("CSIS2260")).findFirst().orElse(null);
 	        Course csis2270 = courses.stream().filter(course -> course.getCode().equals("CSIS2270")).findFirst().orElse(null);
-	        
+	        Course csis3155 =  courses.stream().filter(course -> course.getCode().equals("CSIS3155")).findFirst().orElse(null);
 	        // Create UserTakeCourse instance for Tom and CSIS2260
 	        UserTakeCourse userTakeCourse1 = new UserTakeCourse(tom, csis2260, false);
 	        userTakeCourseRepo.save(userTakeCourse1);
 
 	        // Create UserTakeCourse instance for Tom and CSIS2270
 	        UserTakeCourse userTakeCourse2 = new UserTakeCourse(tom, csis2270, true);
+	        UserTakeCourse ut3 = new UserTakeCourse(tom, csis3155, false);
 	        userTakeCourseRepo.save(userTakeCourse2);
+	        userTakeCourseRepo.save(ut3);
+	        
 	        
 	        
 	     // add 3 program
