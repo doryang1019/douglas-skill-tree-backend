@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import jakarta.transaction.Transactional;
 
@@ -26,6 +27,11 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Modifying
     @Query("update Course c set c.requisitesOf = null where c.id = :courseId and :requisiteId member of c.requisitesOf")
     void deleteRequisiteIdFromCourse(Long courseId, Long requisiteId);
+	
+	@Query("SELECT c.id FROM Course c WHERE :requisiteId MEMBER OF c.requisitesOf")
+    List<Long> findCourseIdByRequisiteId(@Param("requisiteId") Long requisiteId);
+	
+	
 	
 	
 

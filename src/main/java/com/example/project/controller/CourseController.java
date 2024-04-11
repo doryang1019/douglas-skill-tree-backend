@@ -87,6 +87,29 @@ public class CourseController {
 
 	}
 	
+	@GetMapping("/nonUpper")
+	public ResponseEntity<List<Course>> getNonUpper(@RequestParam(name = "courseId", required = true) Long courseId ) {
+		try {
+			List<Course> courses = courseRepository.findAll();
+			List<Long> buffer = new ArrayList<>();
+			List<Long> upperCourse =  getUpperCourse(buffer, courseId);
+			
+			return new ResponseEntity<>(courses.stream().filter(x -> !upperCourse.contains(x.getId()) && x.getId()!= courseId).toList(), HttpStatus.OK);
+			
+		}catch(Exception ex) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	public List<Long> getUpperCourse(List<Long> result, Long id) {
+		List<Long> upperCourse =  courseRepository.findCourseIdByRequisiteId(id);
+		if(upperCourse.size() > 0) {
+			result.addAll(upperCourse);
+			upperCourse.forEach(x -> getUpperCourse(result, x));
+		}
+		return result;
+	}
+	
 	@GetMapping("all")
 	public ResponseEntity<List<Course>> getAllUnformat() {
 		try {
@@ -207,6 +230,7 @@ public class CourseController {
 			
 			// check if user exist
 			Optional<User> searchUser = userRepository.findById(userId);
+			
 			
 			//check if course exist
 			Optional<Course> searchCourse = courseRepository.findById(courseId);
