@@ -3,10 +3,8 @@ package com.example.project;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.boot.ApplicationRunner;
@@ -31,8 +29,8 @@ public class Csis3275071G1ProjectApplication {
 	private ArrayList<Program> programs;
 	private ArrayList<Course> courses;
 	private ArrayList<User> users;
-	private ArrayList<ProgramHasCourse> programHasCourses;
 	private Program emergeTech;
+	private Map<String, Course> courseMap;
 	public static void main(String[] args) {
 		SpringApplication.run(Csis3275071G1ProjectApplication.class, args);
 	}
@@ -46,15 +44,11 @@ public class Csis3275071G1ProjectApplication {
 			//add 3 program
 	        addPrograms(programRepo);
 	        
-			//add sample data for the courses and the prerequisitives
+			//add sample data for the courses and the pre-requisitives
 			addCourses(courseRepo);
 			
 			//add test data for the user
 			addUsers(userRepo);
-
-			// Find Tom from the list of users
-	        User tom = users.stream().filter(user -> user.getUsername().equals("Tom")).findFirst().orElse(null);
-	        addCourseToUser(tom, userTakeCourseRepo);
 	        
 	        //add required courses to emergingTech program
 	        List<String> emergingTech = Arrays.asList("CSIS1175", "CSIS1280", "CSIS2175", "CSIS2200", "CSIS2260",
@@ -63,6 +57,12 @@ public class Csis3275071G1ProjectApplication {
 	        		"CSIS4270", "CSIS4280", "CSIS4495");
 	        addCourseToProgram(programHasCourseRepo, emergingTech);
 			
+	        // Find Tom from the list of users
+	        User tom = users.stream().filter(user -> user.getUsername().equals("Tom")).findFirst().orElse(null);
+	        updateUserTomStatus(tom, userTakeCourseRepo);
+	        
+	        User student_ray = users.stream().filter(user -> user.getUsername().equals("student_ray")).findFirst().orElse(null);
+	        updateUserRayStatus(student_ray, userTakeCourseRepo);
 		};
 	}
 	
@@ -135,21 +135,23 @@ public class Csis3275071G1ProjectApplication {
 	}
 	
 	//add user taking course to UserTakeCourse repository
-	public void addCourseToUser(User user, UserTakeCourseRepository utcr) {
+	public void addCourseToUser(User user, List<String> courseList, Map<String, Boolean> takenMap, UserTakeCourseRepository userTakeCourseRepo) {
 		// Find CSIS2260 and CSIS2270 from the list of courses
-        Course csis2260 = courses.stream().filter(course -> course.getCode().equals("CSIS2260")).findFirst().orElse(null);
-        Course csis2270 = courses.stream().filter(course -> course.getCode().equals("CSIS2270")).findFirst().orElse(null);
-        Course csis3155 = courses.stream().filter(course -> course.getCode().equals("CSIS3155")).findFirst().orElse(null);
+        List<UserTakeCourse> userTakeCourses = new ArrayList<>();
+		for (String code : courseList) {
+			userTakeCourses.add(new UserTakeCourse(user, courseMap.get(code), takenMap.get(code)));
+		}
+		userTakeCourseRepo.saveAll(userTakeCourses);
         // Create UserTakeCourse instance for Tom and CSIS2260
-        utcr.save(new UserTakeCourse(user, csis2260, false));
-        utcr.save(new UserTakeCourse(user, csis2270, true));
-        utcr.save(new UserTakeCourse(user, csis3155, false));
+//        utcr.save(new UserTakeCourse(user, csis2260, false));
+//        utcr.save(new UserTakeCourse(user, csis2270, true));
+//        utcr.save(new UserTakeCourse(user, csis3155, false));
 	}
 	
 	//add require courses to ProgramHasCourses repository
 	public void addCourseToProgram(ProgramHasCourseRepository programHasCourseRepo, List<String> courseCodes) {
 		//add key:value from all courses list to HashMap
-		Map<String, Course> courseMap = new HashMap<>();
+		courseMap = new HashMap<>();
         for (Course course : courses) {
             courseMap.put(course.getCode(), course);
         }
@@ -175,5 +177,27 @@ public class Csis3275071G1ProjectApplication {
         
         //save data to programHasCourse repository
         programHasCourseRepo.saveAll(programHasCourses);
+	}
+	
+	public void updateUserTomStatus(User user, UserTakeCourseRepository userTakeCourseRepo) {
+        Map<String, Boolean> takenMap = new HashMap<>();
+        List<String> courseList = Arrays.asList("CSIS2260", "CSIS2270", "CSIS3155");
+        takenMap.put("CSIS2260", false);
+        takenMap.put("CSIS2270", true);
+        takenMap.put("CSIS3155", false);
+        addCourseToUser(user, courseList, takenMap, userTakeCourseRepo);
+	}
+	
+	public void updateUserRayStatus(User user, UserTakeCourseRepository userTakeCourseRepo) {
+		Map<String, Boolean> takenMap = new HashMap<>();
+		List<String> courseListDone = Arrays.asList("CSIS1175", "CSIS1280", "CSIS2175", "CSIS2200",
+				"CSIS2260", "CSIS2270", "CSIS2300", "CSIS3290");
+		List<String> courseListTaking = Arrays.asList("CSIS3175",
+				"CSIS3275", "CSIS3280", "CSIS3475");
+		courseListDone.stream().forEach(item -> takenMap.put(item, true));
+		courseListTaking.stream().forEach(item -> takenMap.put(item, false));
+		List<String> fullCourseList = new ArrayList<>(courseListDone);
+		fullCourseList.addAll(courseListTaking);
+		addCourseToUser(user, fullCourseList, takenMap, userTakeCourseRepo);
 	}
 }
