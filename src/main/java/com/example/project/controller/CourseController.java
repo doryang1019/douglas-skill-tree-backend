@@ -228,6 +228,9 @@ public class CourseController {
 						result.setDone(false);
 						return new ResponseEntity<>(userTakeCourseRepository.save(result), HttpStatus.OK);
 					}
+					else if (isTakenStatus ==false && isDoneStatus == false) {
+						userTakeCourseRepository.deleteById(result.getId());
+					}
 				}
 			}
 			return null;
@@ -239,7 +242,7 @@ public class CourseController {
 		}
 		
 		
-		
+	
 		
 	};
 	
