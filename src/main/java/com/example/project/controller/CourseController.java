@@ -16,7 +16,10 @@ import com.example.project.model.CourseRepository;
 import com.example.project.model.ProgramHasCourse;
 import com.example.project.model.ProgramHasCourseRepository;
 import com.example.project.model.ProgramRepository;
+import com.example.project.model.User;
+import com.example.project.model.UserRepository;
 import com.example.project.model.UserTakeCourse;
+import com.example.project.model.UserTakeCourseRepository;
 import com.example.project.response.CourseResponse;
 import com.example.project.response.CourseStatus;
 import com.example.project.service.CourseService;
@@ -37,6 +40,12 @@ public class CourseController {
 	
 	@Autowired
 	UserTakeCourseService userTakeCourseService;
+	
+	@Autowired
+	UserTakeCourseRepository userTakeCourseRepository;
+	
+	@Autowired
+	UserRepository userRepository;
 	
 
 	@Autowired
@@ -182,6 +191,69 @@ public class CourseController {
 		}
 
 	}
+	
+	@PutMapping("")
+	public ResponseEntity<UserTakeCourse> updateCoursesStatus(
+			@RequestParam(name = "key", required = false) String key ,
+			@RequestParam(name="courseId", required = true) Long courseId,
+			@RequestParam(name="userId", required=true) Long userId,
+			@RequestParam(name="isTakenStatus", required=true) boolean isTakenStatus,
+			@RequestParam(name="isDoneStatus", required=true) boolean isDoneStatus
+	){
+		try {
+			
+			// check if exist course with that userID
+			UserTakeCourse result = userTakeCourseRepository.findByUserIdAndCourseId(userId, courseId);
+			
+			// check if user exist
+			Optional<User> searchUser = userRepository.findById(userId);
+			
+			//check if course exist
+			Optional<Course> searchCourse = courseRepository.findById(courseId);
+			
+			
+			if (searchUser.isPresent() && searchCourse.isPresent()) {
+				//course does not exist in table usertakecourse
+				if (result == null && isTakenStatus ==true && isDoneStatus == true) {
+					UserTakeCourse newInput = new UserTakeCourse (searchUser.get(),searchCourse.get(),true);
+					
+					return new ResponseEntity<>(userTakeCourseRepository.save(newInput), HttpStatus.OK);
+				}
+				else if (result == null && isTakenStatus ==true && isDoneStatus == false) {
+					UserTakeCourse newInput = new UserTakeCourse (searchUser.get(),searchCourse.get(),false);
+//					userTakeCourseRepository.save(newInput);
+					return new ResponseEntity<>(userTakeCourseRepository.save(newInput), HttpStatus.OK);
+				}
+				// course does exist in the table
+				else if (result!=null) {
+					if( isTakenStatus ==true && isDoneStatus == true) {
+						result.setDone(true);
+						return new ResponseEntity<>(userTakeCourseRepository.save(result), HttpStatus.OK);
+					}
+					else if(isTakenStatus ==true && isDoneStatus == false)
+					{
+						result.setDone(false);
+						return new ResponseEntity<>(userTakeCourseRepository.save(result), HttpStatus.OK);
+					}
+					else if (isTakenStatus ==false && isDoneStatus == false) {
+						userTakeCourseRepository.deleteById(result.getId());
+					}
+				}
+			}
+			return null;
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+		}
+		
+		
+	
+		
+	};
+	
+	
 
 	@PostMapping("")
 	public ResponseEntity<Course> addCourse(@RequestBody Course course) {
