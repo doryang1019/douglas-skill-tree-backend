@@ -20,8 +20,10 @@ public class UserTakeCourseService {
 	@Autowired
 	UserTakeCourseRepository userTakeCourseRepository;
 	
+	@Autowired
 	UserRepository userRepository;
 	
+	@Autowired
 	CourseRepository courseRepository;
 	
 	public CourseStatus setStatus(long courseId, long userId) {
@@ -44,53 +46,53 @@ public class UserTakeCourseService {
 	}
 	
 	
-	public CourseStatus updateStatus(long courseId, long userId, boolean newIsTaken, boolean newIsDone) {
-		
-		// check if exist course with that userID
-		UserTakeCourse result = userTakeCourseRepository.findByUserIdAndCourseId(userId, courseId);
-		
-		// check if user exist
-		Optional<User> searchUser = userRepository.findById(userId);
-		
-		//check if course exist
-		Optional<Course> searchCourse = courseRepository.findById(courseId);
-		
-		
-		if (searchUser.isPresent() && searchCourse.isPresent()) {
-			//course does not exist in table usertakecourse
-			if (result == null && newIsTaken ==true && newIsDone == true) {
-				UserTakeCourse newInput = new UserTakeCourse (searchUser.get(),searchCourse.get(),true);
-				userTakeCourseRepository.save(newInput);
-				return new CourseStatus(newIsTaken, newIsDone);
-			}
-			else if (result == null && newIsTaken ==true && newIsDone == false) {
-				UserTakeCourse newInput = new UserTakeCourse (searchUser.get(),searchCourse.get(),false);
-				userTakeCourseRepository.save(newInput);
-				return new CourseStatus(newIsTaken, newIsDone);
-			}
-			// course does exist in the table
-			else if (result!=null) {
-				if( newIsTaken ==true && newIsDone == true) {
-					result.setDone(true);
-				}
-				else if(newIsTaken ==true && newIsDone == false)
-				{
-					result.setDone(false);
-				}
-				return new CourseStatus(newIsTaken, newIsDone);
-			}
-		}
-		
-		// Return null if either user or course not found
-		
-		return null;
-		
-		// Find Tom from the list of users
-        
-		
-		
-		
-	}
+//	public CourseStatus updateStatus(long courseId, long userId, boolean newIsTaken, boolean newIsDone) {
+//		
+//		// check if exist course with that userID
+//		UserTakeCourse result = userTakeCourseRepository.findByUserIdAndCourseId(userId, courseId);
+//		
+//		// check if user exist
+//		Optional<User> searchUser = userRepository.findById(userId);
+//		
+//		//check if course exist
+//		Optional<Course> searchCourse = courseRepository.findById(courseId);
+//		
+//		
+//		if (searchUser.isPresent() && searchCourse.isPresent()) {
+//			//course does not exist in table usertakecourse
+//			if (result == null && newIsTaken ==true && newIsDone == true) {
+//				UserTakeCourse newInput = new UserTakeCourse (searchUser.get(),searchCourse.get(),true);
+//				userTakeCourseRepository.save(newInput);
+//				return new CourseStatus(newIsTaken, newIsDone);
+//			}
+//			else if (result == null && newIsTaken ==true && newIsDone == false) {
+//				UserTakeCourse newInput = new UserTakeCourse (searchUser.get(),searchCourse.get(),false);
+//				userTakeCourseRepository.save(newInput);
+//				return new CourseStatus(newIsTaken, newIsDone);
+//			}
+//			// course does exist in the table
+//			else if (result!=null) {
+//				if( newIsTaken ==true && newIsDone == true) {
+//					result.setDone(true);
+//				}
+//				else if(newIsTaken ==true && newIsDone == false)
+//				{
+//					result.setDone(false);
+//				}
+//				return new CourseStatus(newIsTaken, newIsDone);
+//			}
+//		}
+//		
+//		// Return null if either user or course not found
+//		
+//		return null;
+//		
+//		// Find Tom from the list of users
+//        
+//		
+//		
+//		
+//	}
 	
 	
 }
