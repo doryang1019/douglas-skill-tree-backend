@@ -19,15 +19,13 @@ public class UserTakeCourseService {
 
 	@Autowired
 	UserTakeCourseRepository userTakeCourseRepository;
-<<<<<<< HEAD
-	// return course status
-=======
+	
 	
 	UserRepository userRepository;
 	
 	CourseRepository courseRepository;
 	
->>>>>>> branch 'master' of https://github.com/doryang1019/douglas-skill-tree-backend.git
+	// return course status
 	public CourseStatus setStatus(long courseId, long userId) {
 		
 	 UserTakeCourse result = userTakeCourseRepository.findByUserIdAndCourseId(userId, courseId);

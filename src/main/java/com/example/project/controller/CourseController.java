@@ -91,13 +91,6 @@ public class CourseController {
 	//prepare course response
 	public void formatCourse(List<Course> courses, List<CourseResponse> result, Long userId) {
 		for(Course c: courses) {
-<<<<<<< HEAD
-//			System.out.println("go th for loop");
-//			System.out.println(c.getId());
-			//get c status
-=======
-
->>>>>>> branch 'master' of https://github.com/doryang1019/douglas-skill-tree-backend.git
 			CourseStatus status = userTakeCourseService.setStatus(c.getId(), userId);
 			CourseResponse cr = new CourseResponse(c.getId(), c.getCode(), c.getTitle(), status);
 			for(Long i : c.getRequisitesOf()) {
@@ -156,27 +149,16 @@ public class CourseController {
 				if(programId == null) {
 					System.out.print("!!!!PROGRAM IS NULL!!!!!");
 					courseRepository.findAll().forEach(courses::add);
-<<<<<<< HEAD
 				} else { //no key, have programId
-					System.out.print("!!!!NONE2!!!!!");
-=======
-				} else {
 					System.out.print("!!!!PROGRAM IS NOT NULL!!!!!");
->>>>>>> branch 'master' of https://github.com/doryang1019/douglas-skill-tree-backend.git
 					courses = getCourseByProgram(programId);
 					System.out.print("Course size " + courses.get(0).getCode());
 					courses.forEach((x) -> System.out.println(x.getTitle()));
 				}
 				
-<<<<<<< HEAD
 			} else { 
 				if(programId == null) { //have key, no programId
-					System.out.print("!!!!NONE3!!!!!");
-=======
-			} else {
-				if(programId == null) {
 					System.out.print("!!!!PROGRAM ID IS NULL!!!!!");
->>>>>>> branch 'master' of https://github.com/doryang1019/douglas-skill-tree-backend.git
 					courseRepository.findByCodeOrTitle(key.toLowerCase()).stream().forEach(courses::add);
 				} else { //have key, have programId
 					System.out.print("HAS PROGRAM");
