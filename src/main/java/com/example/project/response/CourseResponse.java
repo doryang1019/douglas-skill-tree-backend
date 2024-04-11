@@ -28,7 +28,7 @@ public class CourseResponse {
 	
 	private CourseStatus status;
 	
-	
+	private List<CourseResponse> requisitesOf = new ArrayList<>();
 
 	public CourseStatus getStatus() {
 		return status;
@@ -37,8 +37,6 @@ public class CourseResponse {
 	public void setStatus(CourseStatus status) {
 		this.status = status;
 	}
-
-	private List<CourseResponse> requisitesOf = new ArrayList<>();
 	
 	public CourseResponse() {}
 

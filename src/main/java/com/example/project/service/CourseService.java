@@ -64,12 +64,16 @@ public class CourseService {
 //			return null;
 //		}
 //	}
-
+	//find course by course response; if found, add course to ids list
 	private CourseResponse getPreRequisites(CourseResponse courseResponse, List<Long> ids) {
+		//get course by courseResponse Id
 		Course c = courseRepository.findById(courseResponse.getId()).get();
+		//if course has pre-requisite
 		if (c.getRequisitesOf().size() > 0) {
 			for (Long i : c.getRequisitesOf()) {
+				//find each pre-requisite course
 				Course tmp = courseRepository.findById(i).get();
+				//add id to list
 				ids.add(i);
 				List<Long> buffer = new ArrayList<>();
 				courseResponse.getRequisitesOf().forEach(x -> buffer.add(x.getId()));
@@ -85,13 +89,17 @@ public class CourseService {
 	private void findPrerequisitesRecursive(List<CourseResponse> allCourse, List<CourseResponse> result, CourseResponse courseResponse,
 			List<Long> ids) {
 //		System.out.println("findPrerequisitesRecursive: " + courseResponse.getId() + courseResponse.getRequisitesOf());
+		//if this courseResponse has pre-requisites
 		if (courseResponse.getRequisitesOf().size() > 0) {
 			System.out.println("courseResponse" + courseResponse.getId());
 			for (CourseResponse cr : courseResponse.getRequisitesOf()) {
+				//add pre-requisites Id to ids list
 				ids.add(cr.getId());
+				//retrieve course by id
 				Course course = courseRepository.findById(cr.getId()).get();
 				for (long i : course.getRequisitesOf()) {
 					System.out.println("i: " + i);
+					//find course by Id in allCourse list
 					CourseResponse buffer = findOneCourseResponse(allCourse, i);
 					if(buffer !=null) {
 						buffer = getPreRequisites(buffer, ids);

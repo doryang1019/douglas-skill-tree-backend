@@ -88,23 +88,29 @@ public class CourseController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+	//prepare course response
 	public void formatCourse(List<Course> courses, List<CourseResponse> result, Long userId) {
 //		System.out.println("course size" + courses.get(0).getCode());
 //		System.out.print("result" + result.size());
 		for(Course c: courses) {
 //			System.out.println("go th for loop");
 //			System.out.println(c.getId());
+			//get c status
 			CourseStatus status = userTakeCourseService.setStatus(c.getId(), userId);
 			CourseResponse cr = new CourseResponse(c.getId(), c.getCode(), c.getTitle(), status);
 			for(Long i : c.getRequisitesOf()) {
+				//get pre-requisites
 				Course tmp = courseRepository.findById(i).get();
+				//check pre-requisites status
 				CourseStatus status2 = userTakeCourseService.setStatus(tmp.getId(), userId);
+				//add pre-requisites course response 
 				cr.addRequisity(new CourseResponse(tmp.getId(), tmp.getCode(), tmp.getTitle(), status2));
 			}
+			//add each course response to result list
 			result.add(cr);
 		}
 	}
+	//given a program, return all courses associate with that program
     public List<Course> getCourseByProgram(@PathVariable("id") long id) {
 		
 		try {
@@ -130,7 +136,8 @@ public class CourseController {
 		}
 		
 	}
-
+    
+    //get courses
 	@GetMapping("")
 	public ResponseEntity<List<CourseResponse>> getAllCourses(
 			@RequestParam(name = "key", required = false) String key ,
@@ -143,22 +150,24 @@ public class CourseController {
 			List<Course> orgCourses = new ArrayList<>();
 			List<CourseResponse> result = new ArrayList<>();
 			List<CourseResponse> allCourses = new ArrayList<>();
+			
 			if (key == null || key.length() ==0 || key.isEmpty()) {
+				//no key, no programId
 				if(programId == null) {
 					System.out.print("!!!!NONE!!!!!");
 					courseRepository.findAll().forEach(courses::add);
-				} else {
+				} else { //no key, have programId
 					System.out.print("!!!!NONE2!!!!!");
 					courses = getCourseByProgram(programId);
 					System.out.print("Course size " + courses.get(0).getCode());
 					courses.forEach((x) -> System.out.println(x.getTitle()));
 				}
 				
-			} else {
-				if(programId == null) {
+			} else { 
+				if(programId == null) { //have key, no programId
 					System.out.print("!!!!NONE3!!!!!");
 					courseRepository.findByCodeOrTitle(key.toLowerCase()).stream().forEach(courses::add);
-				} else {
+				} else { //have key, have programId
 					System.out.print("HAS PROGRAM");
 					courses = getCourseByProgram(programId).stream().filter(x -> x.getCode().toLowerCase().contains(key.toLowerCase()) ||
 							x.getTitle().toLowerCase().contains(key.toLowerCase())).toList();
@@ -246,6 +255,20 @@ public class CourseController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
+	}
+	
+	@GetMapping("/status/{programId}/{studentId}")
+	public ResponseEntity<List<CourseResponse>> getCoursesByProgram(@PathVariable("programId") long programId, @PathVariable("studentId") long stuId){
+		try {
+			List<Course> courses;
+			List<CourseResponse> result = new ArrayList<>();
+			courses = getCourseByProgram(programId);
+			formatCourse(courses, result, stuId);
+			return new ResponseEntity<>(result, HttpStatus.OK);
+		}catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 }

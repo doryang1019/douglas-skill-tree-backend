@@ -12,7 +12,7 @@ public class UserTakeCourseService {
 
 	@Autowired
 	UserTakeCourseRepository userTakeCourseRepository;
-	
+	// return course status
 	public CourseStatus setStatus(long courseId, long userId) {
 		
 	 UserTakeCourse result = userTakeCourseRepository.findByUserIdAndCourseId(userId, courseId);
