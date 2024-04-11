@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.project.model.Course;
 import com.example.project.model.CourseRepository;
+import com.example.project.model.Program;
 import com.example.project.model.ProgramHasCourse;
 import com.example.project.model.ProgramHasCourseRepository;
 import com.example.project.model.ProgramRepository;
@@ -20,6 +21,7 @@ import com.example.project.model.User;
 import com.example.project.model.UserRepository;
 import com.example.project.model.UserTakeCourse;
 import com.example.project.model.UserTakeCourseRepository;
+import com.example.project.request.AddCourseRequest;
 import com.example.project.response.CourseResponse;
 import com.example.project.response.CourseStatus;
 import com.example.project.service.CourseService;
@@ -85,6 +87,29 @@ public class CourseController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
+	}
+	
+	@GetMapping("/nonUpper")
+	public ResponseEntity<List<Course>> getNonUpper(@RequestParam(name = "courseId", required = true) Long courseId ) {
+		try {
+			List<Course> courses = courseRepository.findAll();
+			List<Long> buffer = new ArrayList<>();
+			List<Long> upperCourse =  getUpperCourse(buffer, courseId);
+			
+			return new ResponseEntity<>(courses.stream().filter(x -> !upperCourse.contains(x.getId()) && x.getId()!= courseId).toList(), HttpStatus.OK);
+			
+		}catch(Exception ex) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	public List<Long> getUpperCourse(List<Long> result, Long id) {
+		List<Long> upperCourse =  courseRepository.findCourseIdByRequisiteId(id);
+		if(upperCourse.size() > 0) {
+			result.addAll(upperCourse);
+			upperCourse.forEach(x -> getUpperCourse(result, x));
+		}
+		return result;
 	}
 	
 	@GetMapping("all")
@@ -208,6 +233,7 @@ public class CourseController {
 			// check if user exist
 			Optional<User> searchUser = userRepository.findById(userId);
 			
+			
 			//check if course exist
 			Optional<Course> searchCourse = courseRepository.findById(courseId);
 			
@@ -256,15 +282,21 @@ public class CourseController {
 	
 
 	@PostMapping("")
-	public ResponseEntity<Course> addCourse(@RequestBody Course course) {
+	public ResponseEntity<Course> addCourse(@RequestBody AddCourseRequest addCourseReq) {
 		try {
 
-			List<Course> courses = courseRepository.findByTitle(course.getTitle());
+			List<Course> courses = courseRepository.findByTitle(addCourseReq.getCourse().getTitle());
 			if (courses.size() > 0) {
 				return new ResponseEntity<>(HttpStatus.CONFLICT);
 			} else {
-				if (course.getCode() != null && course.getTitle() != null) {
-					return new ResponseEntity<>(courseRepository.save(course), HttpStatus.CREATED);
+				if (addCourseReq.getCourse().getCode() != null && addCourseReq.getCourse().getTitle() != null) {
+					// save program
+					Course result = courseRepository.save(addCourseReq.getCourse());
+					if(result != null) {
+						Program program = programRepository.findById(addCourseReq.getProgramId()).get();
+						programHasCourseRepository.save(new ProgramHasCourse(program, result));
+					}
+					return new ResponseEntity<>(result, HttpStatus.CREATED);
 				} else {
 					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 				}
