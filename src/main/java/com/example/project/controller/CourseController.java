@@ -314,9 +314,11 @@ public class CourseController {
 		try {
 
 			Course findOne = courseRepository.findById(id).get();
+			
 			if (findOne != null) {
 				System.out.print("size: " + findOne.getRequisitesOf().size());
-				if(findOne.getRequisitesOf().size() !=0) {
+				List<Long> getParentList = courseRepository.findCourseIdByRequisiteId(id);
+				if(findOne.getRequisitesOf().size() !=0 && getParentList.size() !=0) {
 					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 				}else {
 					programHasCourseRepository.deleteByCouseId(id);
